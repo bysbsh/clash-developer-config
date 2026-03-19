@@ -1,0 +1,323 @@
+#========================================================
+# Clash / Mihomo 程序员专用分流配置
+#--------------------------------------------------------
+# Name        : Developer Proxy Config
+# Version     : v1.0
+# Author      : basil
+# Updated     : 2026-03
+#
+# 支持内核
+#   ✔ Mihomo (推荐)
+#   ✔ Clash Meta
+#   ✔ Clash Verge / Clash Verge Rev
+#   ✔ OpenClash Meta
+#
+# 不完全兼容
+#   ✘ 旧版 Clash Core
+#
+#--------------------------------------------------------
+# 核心特性
+#
+# • 企业级 DNS
+#   Fake-IP + DoH + 国内外 DNS 分流
+#
+# • AI 服务优化
+#   OpenAI / Claude / Perplexity 强制使用美国节点
+#
+# • 开发环境优化
+#   GitHub / Docker / npm / pip 下载链路优化
+#
+# • Apple 服务策略
+#   Apple 默认直连，Apple Music 单独分流
+#
+# • 国内流量直连
+#   ChinaMax + ChinaIP + GEOIP(CN)
+#
+# • 智能节点策略
+#   自动测速 + 自动故障切换 + 手动选择
+#
+#--------------------------------------------------------
+# 适用场景
+#
+# • 程序员开发环境
+# • GitHub / Docker / npm / pip
+# • AI 工具 (ChatGPT / Claude / OpenRouter)
+# • Mihomo / Clash Meta 客户端
+#
+# 推荐运行模式
+#   TUN + Rule
+#========================================================
+
+#================ 基础设置 =================
+port: 7890            # HTTP代理端口
+socks-port: 7891      # SOCKS代理端口
+redir-port: 7892      # Redir端口（透明代理）
+mixed-port: 7893      # 混合端口（HTTP+SOCKS）
+allow-lan: true       # 允许局域网设备连接
+bind-address: "*"
+mode: rule            # 使用规则分流
+log-level: info
+ipv6: false
+external-controller: 127.0.0.1:9090
+
+# 网络体验优化
+unified-delay: true   # 统一延迟计算
+tcp-concurrent: true  # TCP并发连接优化
+
+# 内核增强功能（需要 Mihomo / Clash Meta 内核）
+geodata-mode: true        # 使用 GeoData 数据库模式，提高 GEOIP / GEOSITE 规则匹配性能
+find-process-mode: strict # 识别发起网络请求的进程（macOS / Windows / Linux 支持）
+
+# 用户配置缓存
+profile:
+  store-selected: true    # 记住手动选择的节点
+  store-fake-ip: true     # 缓存 Fake-IP 映射，提高 DNS 稳定性
+
+# TCP连接稳定优化
+keep-alive-idle: 600
+keep-alive-interval: 30
+
+# 协议嗅探（提高规则匹配准确度）
+sniffer:
+  enable: true
+  sniff:
+    TLS:
+      ports: [443, 8443]
+    HTTP:
+      ports: [80, 8080]
+    QUIC:
+      ports: [443]
+  override-destination: true
+
+#================ DNS =================
+# Fake-IP 模式适合开发环境 / Docker / TUN
+dns:
+  enable: true
+  ipv6: false
+  listen: 127.0.0.1:1053
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  prefer-h3: true       # 优先使用 HTTP3 DNS
+  cache-algorithm: arc  # DNS缓存算法 （ arc / arczh Mihomo推荐)
+
+  # 不使用 Fake-IP 的域名
+  fake-ip-filter:
+    - "*.lan"
+    - "*.local"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.srv.nintendo.net"
+    - "+.stun.playstation.net"
+    - "+.captive.apple.com"
+    - "*.pool.ntp.org"
+    - "+.time.apple.com"
+    - "+.time.windows.com"
+    - "+.ntp.org"
+    
+  # 国内 DNS
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+
+  # 国内 DoH
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+
+  # 代理服务器解析 DNS
+  proxy-server-nameserver:
+    - https://dns.google/dns-query
+    - https://cloudflare-dns.com/dns-query
+
+  # 国外 DNS
+  fallback:
+    - https://dns.google/dns-query
+    - https://cloudflare-dns.com/dns-query
+
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+
+#================ 锚点模板 =================
+# 订阅模板（统一健康检查）
+provider: &provider
+  type: http
+  interval: 3600
+  health-check:
+    enable: true
+    url: http://www.gstatic.com/generate_204
+    interval: 1800
+
+# 自动测速模板
+auto-test: &auto_test
+  type: url-test
+  lazy: true
+  url: http://www.gstatic.com/generate_204
+  interval: 900
+  tolerance: 50
+  use: [Sub]
+
+# 规则模板
+rules-classical: &rules_classical {type: http, behavior: classical, interval: 86400}
+rules-domain: &rules_domain {type: http, behavior: domain, interval: 86400}
+rules-ip: &rules_ip {type: http, behavior: ipcidr, interval: 86400}
+
+#================ 订阅 =================
+proxy-providers:
+  Sub:
+    <<: *provider
+    url: 订阅地址
+    path: ./proxy_providers/sub.yaml
+
+proxies: null
+
+#================ 策略组 =================
+proxy-groups:
+
+# 🌍 全局策略
+  - {name: 🌍 全局出口, type: select, proxies: [🔁 自动选择, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, 🧰 手动选择, 🛟 最终兜底, DIRECT]}
+
+# 🤖 AI服务
+  - {name: 🤖 AI专线, type: select, proxies: [🤖 AI自动优选, 🇺🇸 美国节点, 🧰 手动选择, 🌍 全局出口, 🛟 最终兜底]}
+
+# 🧑‍💻 开发工具
+  - {name: 🧑‍💻 开发下载, type: fallback, url: https://github.com/robots.txt, interval: 300, proxies: [🇺🇸 美国节点, 🌍 全局出口, DIRECT]}
+
+# 🌐 常见服务
+  - {name: 🌐 谷歌服务, type: select, proxies: [🇺🇸 美国节点, DIRECT]}
+  - {name: 🍎 苹果服务, type: select, proxies: [DIRECT, 🌍 全局出口]}
+  - {name: ✈️ 电报消息, type: select, proxies: [🌍 全局出口, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, DIRECT]}
+  - {name: 🐦 推特服务, type: select, proxies: [🌍 全局出口, 🇺🇸 美国节点, DIRECT]}
+
+# 🎬 国际媒体
+  - {name: 🎬 国际媒体, type: select, proxies: [🌍 全局出口, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, DIRECT]}
+  - {name: 📺 哔哩哔哩, type: select, proxies: [DIRECT, 🇭🇰 香港节点, 🇹🇼 台湾节点]}
+
+# 🎮 游戏
+  - {name: 🎮 游戏平台, type: select, proxies: [🌍 全局出口, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, DIRECT]}
+
+# 🚫 广告
+  - {name: 🚫 广告拦截, type: select, proxies: [REJECT, DIRECT]}
+
+# 🧰 手动节点
+  - {name: 🧰 手动选择, type: select, use: [Sub], proxies: [DIRECT]}
+
+# 🔁 全局自动测速
+  - {name: 🔁 自动选择, <<: *auto_test}
+
+# 🌏 地区节点
+  - {name: 🇺🇸 美国节点, <<: *auto_test, filter: "美|US|(?i)States|American"}
+  - {name: 🇭🇰 香港节点, <<: *auto_test, filter: "港|HK|(?i)Hong"}
+  - {name: 🇯🇵 日本节点, <<: *auto_test, filter: "日|东京|JP|(?i)Japan"}
+  - {name: 🇸🇬 新加坡节点, <<: *auto_test, filter: "新加坡|狮城|SG|(?i)Singapore"}
+  - {name: 🇹🇼 台湾节点, <<: *auto_test, filter: "台|湾|TW|(?i)Taiwan"}
+  
+# ⚡ 专用测速
+  - {name: 🤖 AI自动优选, type: url-test, lazy: true, url: https://api.openai.com/, interval: 900, tolerance: 100, use: [Sub], filter: "美|US|(?i)States|American"}
+  - {name: 🧑‍💻 开发自动优选, type: url-test, lazy: true, url: https://github.com, interval: 900, tolerance: 80, use: [Sub]}
+
+# 🛟 最终兜底
+  - {name: 🛟 最终兜底, type: fallback, url: http://www.gstatic.com/generate_204, interval: 600, proxies: [🔁 自动选择, DIRECT]}
+
+#================ 规则集 =================
+rule-providers:
+  Ad:         {<<: *rules_domain,    url: https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules_domainset.txt,                                  path: ./ruleset/ad.yaml}
+  OpenAi:     {<<: *rules_classical, url: https://gist.githubusercontent.com/ddgksf2013/cb4121e8b5c5d865cc949cb8120320c4/raw/Ai.yaml,                      path: ./ruleset/openai.yaml}
+  Apple:      {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple_Classical.yaml,           path: ./ruleset/apple.yaml}
+  AppleMusic: {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/AppleMusic/AppleMusic.yaml,           path: ./ruleset/applemusic.yaml}
+  Google:     {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.yaml,                   path: ./ruleset/google.yaml}
+  YouTube:    {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/YouTube/YouTube.yaml,                 path: ./ruleset/youtube.yaml}
+  Telegram:   {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.yaml,               path: ./ruleset/telegram.yaml}
+  Twitter:    {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Twitter/Twitter.yaml,                 path: ./ruleset/twitter.yaml}
+  Game:       {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Game/Game.yaml,                       path: ./ruleset/game.yaml}
+  Github:     {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/GitHub/GitHub.yaml,                   path: ./ruleset/github.yaml}
+  Download:   {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Download/Download.yaml,               path: ./ruleset/download.yaml}
+  ChinaMax:   {<<: *rules_classical, url: https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Classical.yaml,     path: ./ruleset/chinamax.yaml}
+  ChinaIP:    {<<: *rules_ip,        url: https://cdn.jsdelivr.net/gh/soffchen/GeoIP2-CN@release/clash-rule-provider.yml,                                  path: ./ruleset/chinaip.yaml}
+
+#================ 分流规则 =================
+rules:
+
+# 广告
+- RULE-SET,Ad,🚫 广告拦截
+
+# AI
+- RULE-SET,OpenAi,🤖 AI专线
+- DOMAIN-SUFFIX,chatgpt.com,🤖 AI专线
+- DOMAIN-SUFFIX,openai.com,🤖 AI专线
+- DOMAIN-SUFFIX,anthropic.com,🤖 AI专线
+- DOMAIN-KEYWORD,chatgpt,🤖 AI专线
+- DOMAIN-KEYWORD,openai,🤖 AI专线
+- DOMAIN-SUFFIX,claude.ai,🤖 AI专线
+- DOMAIN-SUFFIX,perplexity.ai,🤖 AI专线
+- DOMAIN-SUFFIX,openrouter.ai,🤖 AI专线
+- DOMAIN-SUFFIX,huggingface.co,🤖 AI专线
+- DOMAIN-SUFFIX,midjourney.com,🤖 AI专线
+- DOMAIN-SUFFIX,x.ai,🤖 AI专线
+# OpenAI API
+- DOMAIN-SUFFIX,api.openai.com,🤖 AI专线
+- DOMAIN-SUFFIX,api.anthropic.com,🤖 AI专线
+- DOMAIN-SUFFIX,openrouter.ai,🤖 AI专线
+- DOMAIN-SUFFIX,huggingface.co,🤖 AI专线
+- DOMAIN-SUFFIX,hf.co,🤖 AI专线
+- DOMAIN-SUFFIX,ai.google.dev,🤖 AI专线
+- DOMAIN-SUFFIX,generativelanguage.googleapis.com,🤖 AI专线
+
+# Apple
+- RULE-SET,AppleMusic,🌍 全局出口
+- RULE-SET,Apple,🍎 苹果服务
+
+# Google
+- RULE-SET,YouTube,🎬 国际媒体
+- RULE-SET,Google,🌐 谷歌服务
+
+# Telegram / Twitter
+- RULE-SET,Telegram,✈️ 电报消息
+- RULE-SET,Twitter,🐦 推特服务
+
+# 游戏
+- RULE-SET,Game,🎮 游戏平台
+
+#================ 开发常用 =================
+- RULE-SET,Github,🧑‍💻 开发下载
+- RULE-SET,Download,🧑‍💻 开发下载
+
+ # GitHub 下载链路（release/附件/raw/容器）
+- DOMAIN-SUFFIX,github.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,githubusercontent.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,githubassets.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,objects.githubusercontent.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,github-releases.githubusercontent.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,raw.githubusercontent.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,codeload.github.com,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,ghcr.io,🧑‍💻 开发下载
+
+ # Docker 拉取链路（认证/分发/CDN）
+- DOMAIN-SUFFIX,docker.io,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,registry-1.docker.io,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,auth.docker.io,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,production.cloudflare.docker.com,🧑‍💻 开发下载
+
+ # npm / pip 常用域名
+- DOMAIN-SUFFIX,npmjs.org,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,registry.npmjs.org,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,pypi.org,🧑‍💻 开发下载
+- DOMAIN-SUFFIX,files.pythonhosted.org,🧑‍💻 开发下载
+
+# 私网/保留网段直连（开发常见：K8s/容器/热点/设备）
+- IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+- IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+- IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+- IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
+- IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
+
+# 国内直连
+- RULE-SET,ChinaMax,DIRECT
+- RULE-SET,ChinaIP,DIRECT
+- GEOIP,CN,DIRECT
+
+# 兜底
+- MATCH,🛟 最终兜底
