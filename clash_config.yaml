@@ -176,26 +176,26 @@ proxies: null
 proxy-groups:
 
 # 🌍 全局策略
-  - {name: 🌍 全局出口, type: select, proxies: [🔁 自动选择, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, 🧰 手动选择, 🛟 最终兜底, DIRECT]}
+  - {name: 🌍 全局出口, type: select, proxies: [🔁 自动选择, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, 🧰 手动选择, DIRECT]}
 
 # 🤖 AI服务
-  - {name: 🤖 AI专线, type: select, proxies: [🤖 AI自动优选, 🔁 自动选择, 🇺🇸 美国节点, 🧰 手动选择, 🛟 最终兜底]}
+  - {name: 🤖 AI专线, type: fallback, url: https://api.openai.com/, interval: 300, proxies: [🤖 AI自动优选, 🔁 自动选择, 🇺🇸 美国节点, 🌍 全局出口, 🧰 手动选择, 🛟 最终兜底]}
 
 # 🧑‍💻 开发工具
-  - {name: 🧑‍💻 开发下载, type: select, proxies: [🧑‍💻 开发自动优选, 🇺🇸 美国节点, 🔁 自动选择, 🛟 最终兜底, DIRECT]}
+  - {name: 🧑‍💻 开发下载, type: select, proxies: [🧑‍💻 开发自动优选, 🔁 自动选择, 🇺🇸 美国节点, 🛟 最终兜底, DIRECT]}
 
 # 🌐 常见服务
-  - {name: 🌐 谷歌服务, type: select, proxies: [🇺🇸 美国节点, 🔁 自动选择, 🛟 最终兜底, DIRECT]}
-  - {name: 🍎 苹果服务, type: select, proxies: [DIRECT, 🔁 自动选择],  🛟 最终兜底}
-  - {name: ✈️ 电报消息, type: select, proxies: [🇭🇰 香港节点, 🔁 自动选择, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底, DIRECT]}
-  - {name: 🐦 推特服务, type: select, proxies: [🇺🇸 美国节点, 🔁 自动选择, 🛟 最终兜底, DIRECT]}
+  - {name: 🌐 谷歌服务, type: select, proxies: [🇺🇸 美国节点, 🔁 自动选择, 🌍 全局出口, 🛟 最终兜底, DIRECT]}
+  - {name: 🍎 苹果服务, type: select, proxies: [DIRECT, 🔁 自动选择 , 🛟 最终兜底]}
+  - {name: ✈️ 电报消息, type: select, proxies: [🔁 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底, DIRECT]}
+  - {name: 🐦 推特服务, type: select, proxies: [🔁 自动选择, 🇺🇸 美国节点, 🌍 全局出口, 🛟 最终兜底, DIRECT]}
 
 # 🎬 国际媒体
   - {name: 🎬 国际媒体, type: select, proxies: [🔁 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底, DIRECT]}
-  - {name: 📺 哔哩哔哩, type: select, proxies: [DIRECT, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🛟 最终兜底]}
+  - {name: 📺 哔哩哔哩, type: select, proxies: [DIRECT, 🇭🇰 香港节点, 🇹🇼 台湾节点]}
 
 # 🎮 游戏
-  - {name: 🎮 游戏平台, type: select, proxies: [🔁 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底,  DIRECT]}
+  - {name: 🎮 游戏平台, type: select, proxies: [🇭🇰 香港节点, DIRECT, 🔁 自动选择, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点]}
 
 # 🚫 广告
   - {name: 🚫 广告拦截, type: select, proxies: [REJECT, DIRECT]}
