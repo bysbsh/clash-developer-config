@@ -179,23 +179,23 @@ proxy-groups:
   - {name: 🌍 全局出口, type: select, proxies: [🔁 自动选择, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇹🇼 台湾节点, 🧰 手动选择, 🛟 最终兜底, DIRECT]}
 
 # 🤖 AI服务
-  - {name: 🤖 AI专线, type: select, proxies: [🤖 AI自动优选, 🇺🇸 美国节点, 🧰 手动选择, 🌍 全局出口, 🛟 最终兜底]}
+  - {name: 🤖 AI专线, type: select, proxies: [🤖 AI自动优选, 🔁 自动选择, 🇺🇸 美国节点, 🧰 手动选择, 🛟 最终兜底]}
 
 # 🧑‍💻 开发工具
-  - {name: 🧑‍💻 开发下载, type: fallback, url: https://github.com/robots.txt, interval: 300, proxies: [🇺🇸 美国节点, 🌍 全局出口, DIRECT]}
+  - {name: 🧑‍💻 开发下载, type: select, proxies: [🧑‍💻 开发自动优选, 🇺🇸 美国节点, 🔁 自动选择, 🛟 最终兜底, DIRECT]}
 
 # 🌐 常见服务
-  - {name: 🌐 谷歌服务, type: select, proxies: [🇺🇸 美国节点, DIRECT]}
-  - {name: 🍎 苹果服务, type: select, proxies: [DIRECT, 🌍 全局出口]}
-  - {name: ✈️ 电报消息, type: select, proxies: [🌍 全局出口, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, DIRECT]}
-  - {name: 🐦 推特服务, type: select, proxies: [🌍 全局出口, 🇺🇸 美国节点, DIRECT]}
+  - {name: 🌐 谷歌服务, type: select, proxies: [🇺🇸 美国节点, 🔁 自动选择, 🛟 最终兜底, DIRECT]}
+  - {name: 🍎 苹果服务, type: select, proxies: [DIRECT, 🔁 自动选择],  🛟 最终兜底}
+  - {name: ✈️ 电报消息, type: select, proxies: [🇭🇰 香港节点, 🔁 自动选择, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底, DIRECT]}
+  - {name: 🐦 推特服务, type: select, proxies: [🇺🇸 美国节点, 🔁 自动选择, 🛟 最终兜底, DIRECT]}
 
 # 🎬 国际媒体
-  - {name: 🎬 国际媒体, type: select, proxies: [🌍 全局出口, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, DIRECT]}
-  - {name: 📺 哔哩哔哩, type: select, proxies: [DIRECT, 🇭🇰 香港节点, 🇹🇼 台湾节点]}
+  - {name: 🎬 国际媒体, type: select, proxies: [🔁 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底, DIRECT]}
+  - {name: 📺 哔哩哔哩, type: select, proxies: [DIRECT, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🛟 最终兜底]}
 
 # 🎮 游戏
-  - {name: 🎮 游戏平台, type: select, proxies: [🌍 全局出口, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, DIRECT]}
+  - {name: 🎮 游戏平台, type: select, proxies: [🔁 自动选择, 🇭🇰 香港节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🛟 最终兜底,  DIRECT]}
 
 # 🚫 广告
   - {name: 🚫 广告拦截, type: select, proxies: [REJECT, DIRECT]}
@@ -215,7 +215,7 @@ proxy-groups:
   
 # ⚡ 专用测速
   - {name: 🤖 AI自动优选, type: url-test, lazy: true, url: https://api.openai.com/, interval: 900, tolerance: 100, use: [Sub], filter: "美|US|(?i)States|American"}
-  - {name: 🧑‍💻 开发自动优选, type: url-test, lazy: true, url: https://github.com, interval: 900, tolerance: 80, use: [Sub]}
+  - {name: 🧑‍💻 开发自动优选, type: url-test, lazy: true, url: https://github.com/robots.txt, interval: 900, tolerance: 80, use: [Sub], filter: "美|US|(?i)States|American|日|东京|JP|(?i)Japan|新加坡|狮城|SG|(?i)Singapore"}
 
 # 🛟 最终兜底
   - {name: 🛟 最终兜底, type: fallback, url: http://www.gstatic.com/generate_204, interval: 600, proxies: [🔁 自动选择, DIRECT]}
