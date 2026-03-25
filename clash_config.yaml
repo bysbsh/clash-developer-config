@@ -237,7 +237,7 @@ proxy-groups:
   - {name: 🧑‍💻 开发自动优选, type: url-test, lazy: true, url: https://github.com/robots.txt, interval: 900, tolerance: 80, use: [Sub], filter: "美|US|(?i)States|American|日|东京|JP|(?i)Japan|新加坡|狮城|SG|(?i)Singapore"}
 
 # 🛟 最终兜底
-  - {name: 🛟 最终兜底, type: fallback, url: http://www.gstatic.com/generate_204, interval: 600, proxies: [🔁 自动选择, DIRECT]}
+  - {name: 🛟 最终兜底, type: fallback, url: http://www.gstatic.com/generate_204, interval: 600, proxies: [DIRECT, 🔁 自动选择]}
 
 #================ 规则集 =================
 rule-providers:
@@ -302,7 +302,7 @@ rules:
 - RULE-SET,Github,🧑‍💻 开发下载
 - RULE-SET,Download,🧑‍💻 开发下载
 
- # GitHub 下载链路（release/附件/raw/容器）
+# GitHub 下载链路（release/附件/raw/容器）
 - DOMAIN-SUFFIX,github.com,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,githubusercontent.com,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,githubassets.com,🧑‍💻 开发下载
@@ -312,13 +312,13 @@ rules:
 - DOMAIN-SUFFIX,codeload.github.com,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,ghcr.io,🧑‍💻 开发下载
 
- # Docker 拉取链路（认证/分发/CDN）
+# Docker 拉取链路（认证/分发/CDN）
 - DOMAIN-SUFFIX,docker.io,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,registry-1.docker.io,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,auth.docker.io,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,production.cloudflare.docker.com,🧑‍💻 开发下载
 
- # npm / pip 常用域名
+# npm / pip 常用域名
 - DOMAIN-SUFFIX,npmjs.org,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,registry.npmjs.org,🧑‍💻 开发下载
 - DOMAIN-SUFFIX,pypi.org,🧑‍💻 开发下载
