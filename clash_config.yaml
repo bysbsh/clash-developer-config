@@ -261,7 +261,7 @@ rules:
 # 广告
 - RULE-SET,Ad,🚫 广告拦截
 
-# AI
+# API 专线
 - RULE-SET,OpenAi,🤖 AI专线
 - DOMAIN-SUFFIX,chatgpt.com,🤖 AI专线
 - DOMAIN-SUFFIX,openai.com,🤖 AI专线
@@ -272,7 +272,7 @@ rules:
 - DOMAIN-SUFFIX,huggingface.co,🤖 AI专线
 - DOMAIN-SUFFIX,midjourney.com,🤖 AI专线
 - DOMAIN-SUFFIX,x.ai,🤖 AI专线
-# API 专线
+- DOMAIN-SUFFIX,openclaw.ai,🤖 AI专线
 - DOMAIN-SUFFIX,api.openai.com,🤖 AI专线
 - DOMAIN-SUFFIX,api.anthropic.com,🤖 AI专线
 - DOMAIN-SUFFIX,hf.co,🤖 AI专线
