@@ -233,7 +233,7 @@ proxy-groups:
   - {name: 🇹🇼 台湾节点, <<: *auto_test, filter: "台|湾|TW|(?i)Taiwan"}
   
 # ⚡ 专用测速
-  - {name: 🤖 AI自动优选, type: url-test, lazy: true, url: https://api.openai.com/, interval: 900, tolerance: 100, use: [Sub], filter: "美|US|(?i)States|American|日|东京|JP|(?i)Japan|新加坡|狮城|SG|(?i)Singapore"}
+  - {name: 🤖 AI自动优选, type: url-test, lazy: true, url: https://api.openai.com/, interval: 900, tolerance: 100, use: [Sub], filter: "美|US|(?i)States|American"}
   - {name: 🧑‍💻 开发自动优选, type: url-test, lazy: true, url: https://github.com/robots.txt, interval: 900, tolerance: 80, use: [Sub], filter: "美|US|(?i)States|American|日|东京|JP|(?i)Japan|新加坡|狮城|SG|(?i)Singapore"}
 
 # 🛟 最终兜底
